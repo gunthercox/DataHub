@@ -1,0 +1,15 @@
+# language: rust
+# cache: cargo
+
+language: python
+
+python:
+  - 3.6
+cache: pip
+
+install:
+  - pip install -r app/requirements.txt
+  - pip install -r app/tests/requirements.txt
+
+script:
+  - nosetests app
