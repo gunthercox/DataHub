@@ -1,0 +1,2 @@
+flask>=0.12,<0.13
+flask-sqlalchemy>=2.3,<2.4
