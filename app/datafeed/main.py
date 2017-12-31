@@ -29,6 +29,9 @@ def serialize_event(event):
     }
 
 
+db.create_all()
+
+
 @app.route("/", methods=['GET', 'POST'])
 def index():
 
