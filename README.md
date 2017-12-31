@@ -16,15 +16,9 @@ applications can consume and respond to events.
 
 ## Architecture / Tech Stack
 
-- A scalable application layer written in Rust.
-- Load balanced behind Nginx.
-- Data stored using [Apache Cassandra](http://cassandra.apache.org) 
-
-**Prototype**
-
-*I'm teaching myself Rust, and I'm new to Apache Cassandra.*
-*To prototype this application faster, I'm going to make the first*
-*version using Flask and SQLite, technologies that I am familiar with.*
+- A scalable application layer written in [Python](https://www.python.org).
+- Load balanced behind [Nginx](https://nginx.org).
+- Data stored using [PostgreSQL](https://www.postgresql.org)
 
 ## Data Format
 
