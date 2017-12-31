@@ -1,8 +1,6 @@
 FROM python:3.6
 
-EXPOSE 5000
-
-ENV FLASK_APP=main.py
+ENV FLASK_APP=datafeed/main.py
 
 ADD . /code
 

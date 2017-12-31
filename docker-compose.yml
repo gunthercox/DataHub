@@ -1,0 +1,37 @@
+version: '3'
+
+services:
+
+  nginx:
+    #restart: always
+    build: ./nginx/
+    ports:
+      - "5000:8080"
+    links:
+      - app_a:app_a
+      - app_b:app_b
+    command: /bin/bash -c "nginx -g 'daemon off;'"
+
+  app_a:
+    restart: always
+    build: ./app/
+    ports:
+      - "5001:5001"
+    command: flask run --host=0.0.0.0 --port=5001
+
+  app_b:
+    restart: always
+    build: ./app/
+    ports:
+      - "5002:5002"
+    command: flask run --host=0.0.0.0 --port=5002
+
+  app_c:
+    restart: always
+    build: ./app/
+    ports:
+      - "5003:5003"
+    command: flask run --host=0.0.0.0 --port=5003
+
+  #database:
+  #  image: cassandra:3.11
