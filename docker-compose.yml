@@ -3,13 +3,14 @@ version: '3'
 services:
 
   nginx:
-    #restart: always
+    restart: always
     build: ./nginx/
     ports:
       - "5000:8080"
     links:
       - app_a:app_a
       - app_b:app_b
+      - app_c:app_c
     command: /bin/bash -c "nginx -g 'daemon off;'"
 
   app_a:
@@ -17,6 +18,10 @@ services:
     build: ./app/
     ports:
       - "5001:5001"
+    links:
+      - database:database
+    depends_on:
+      - migration
     command: flask run --host=0.0.0.0 --port=5001
 
   app_b:
@@ -24,6 +29,10 @@ services:
     build: ./app/
     ports:
       - "5002:5002"
+    links:
+      - database:database
+    depends_on:
+      - migration
     command: flask run --host=0.0.0.0 --port=5002
 
   app_c:
@@ -31,7 +40,25 @@ services:
     build: ./app/
     ports:
       - "5003:5003"
+    links:
+      - database:database
+    depends_on:
+      - migration
     command: flask run --host=0.0.0.0 --port=5003
 
-  #database:
-  #  image: cassandra:3.11
+  migration:
+    build: ./app/
+    links:
+      - database
+    depends_on:
+      - database
+    command: flask db upgrade
+
+  database:
+    restart: always
+    image: postgres:10.1
+    volumes:
+      - /database/:/var/lib/postgresql
+    environment:
+      POSTGRES_DB: events
+      POSTGRES_PASSWORD: secureinsidedockernetwork
