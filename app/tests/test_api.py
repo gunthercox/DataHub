@@ -6,6 +6,10 @@ from datafeed.main import app, db, Event
 class ApiTestCase(TestCase):
 
     def setUp(self):
+
+        # Use an in-memory database for testing
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
+
         self.app = app.test_client()
 
         self.endpoint = '/'
