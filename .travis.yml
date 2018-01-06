@@ -5,9 +5,16 @@ python:
 
 cache: pip
 
+services:
+  - redis-server
+
+env:
+  - REDIS_HOST=localhost
+
 install:
   - pip install -r app/requirements.txt
   - pip install -r app/tests/requirements.txt
 
 script:
+  - flake8 app
   - nosetests app

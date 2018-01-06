@@ -1,4 +1,2 @@
 flask>=0.12,<0.13
-flask-migrate>=2.1,<2.2
-flask-sqlalchemy>=2.3,<2.4
-psycopg2>=2.7,<2.8
+redis>=2.10,<2.11

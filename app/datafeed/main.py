@@ -1,39 +1,34 @@
+import os
+import json
+import uuid
+import redis
 from flask import Flask
 from flask import jsonify, request
-from flask_migrate import Migrate
-from flask_sqlalchemy import SQLAlchemy
 
+
+DEFAULT_EVENT_EXPIRATION_SECONDS = 60
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = (
-    'postgresql://postgres:secureinsidedockernetwork@database/events'
+db = redis.StrictRedis(
+    host=os.getenv('REDIS_HOST', 'redis')
 )
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
 
 
-class Event(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(80), nullable=False)
-    value = db.Column(db.String(120))
-    expires = db.Column(db.DateTime(timezone=True), nullable=True)
+def create_event(**data):
 
-    def __repr__(self):
-        return '<Event %r>' % self.name
+    # Create a unique id for the event
+    pk = uuid.uuid4().hex
 
-def serialize_event(event):
-    return {
-        'id': event.id,
-        'name': event.name,
-        'value': event.value,
-        'expires': event.expires
-    }
+    expiration_seconds = data.get(
+        'expires',
+        DEFAULT_EVENT_EXPIRATION_SECONDS
+    )
+
+    db.set(pk, json.dumps(data), ex=expiration_seconds)
 
 
-@app.route("/", methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def index():
 
     if request.method == 'POST':
@@ -50,20 +45,18 @@ def index():
         if errors:
             return jsonify(errors=errors), 400
 
-        event = Event(
-            name=data.get('name'),
-            value=data.get('value'),
-            expires=data.get('expires')
-        )
+        # Save the event in redis
+        create_event(**data)
 
-        db.session.add(event)
-        db.session.commit()
-
-        return jsonify(serialize_event(event)), 200
+        return jsonify(data), 200
 
     # Get the last 100 events
-    events = Event.query.order_by(Event.id.desc()).limit(100)
+    event_hashes = db.scan(cursor=0, count=100)[1]
+    events = []
 
-    return jsonify([
-        serialize_event(e) for e in events
-    ])
+    # Sort the uuid hashes by time
+    for event_hash in sorted(event_hashes):
+        dump_data = db.get(event_hash)
+        events.append(json.loads(dump_data))
+
+    return jsonify(events), 200
