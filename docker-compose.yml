@@ -58,7 +58,7 @@ services:
     restart: always
     image: postgres:10.1
     volumes:
-      - .data/:/var/lib/postgresql
+      - .data/:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: events
       POSTGRES_PASSWORD: secureinsidedockernetwork
