@@ -2,6 +2,10 @@ version: '3'
 
 services:
 
+  redis:
+    restart: always
+    image: redis:4.0
+
   nginx:
     restart: always
     build: ./nginx/
@@ -19,9 +23,7 @@ services:
     ports:
       - "5001:5001"
     links:
-      - database:database
-    depends_on:
-      - migration
+      - redis:redis
     command: flask run --host=0.0.0.0 --port=5001
 
   app_b:
@@ -30,9 +32,7 @@ services:
     ports:
       - "5002:5002"
     links:
-      - database:database
-    depends_on:
-      - migration
+      - redis:redis
     command: flask run --host=0.0.0.0 --port=5002
 
   app_c:
@@ -41,24 +41,5 @@ services:
     ports:
       - "5003:5003"
     links:
-      - database:database
-    depends_on:
-      - migration
+      - redis:redis
     command: flask run --host=0.0.0.0 --port=5003
-
-  migration:
-    build: ./app/
-    links:
-      - database
-    depends_on:
-      - database
-    command: flask db upgrade
-
-  database:
-    restart: always
-    image: postgres:10.1
-    volumes:
-      - /database/:/var/lib/postgresql
-    environment:
-      POSTGRES_DB: events
-      POSTGRES_PASSWORD: secureinsidedockernetwork

@@ -1,5 +1,6 @@
 FROM python:3.6
 
+ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=datafeed/main.py
 
 ADD ./requirements.txt /code/requirements.txt

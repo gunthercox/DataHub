@@ -1,30 +1,26 @@
 import json
 from unittest import TestCase
-from datafeed.main import app, db, Event
+from datafeed.main import app, db
 
 
 class ApiTestCase(TestCase):
 
     def setUp(self):
-
-        # Use an in-memory database for testing
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
-
         self.app = app.test_client()
-
         self.endpoint = '/'
 
-        db.create_all()
+        # Clear the database before running the test
+        db.flushall()
 
     def tearDown(self):
-        db.session.remove()
-        db.drop_all()
+        db.flushall()
 
     def assertJSON(self, json_data, dict_data):
         """
         Assert that JSON data is equal to a dictionary of data.
         """
         import json
+        from collections import OrderedDict
 
         data = json.loads(json_data)
         self.assertEqual(data, dict_data)
@@ -37,20 +33,22 @@ class ApiTestCase(TestCase):
 
     def test_get_list(self):
         for i in range(1, 4):
-            event = Event(
-                name='Name %s' % i,
-                value=i
+            self.app.post(
+                self.endpoint,
+                data=json.dumps({
+                    'name': 'Name %s' % i,
+                    'value': i
+                }),
+                content_type='application/json'
             )
-            db.session.add(event)
-        db.session.commit()
 
         response = self.app.get(self.endpoint)
 
         self.assertEqual(response.status_code, 200)
         self.assertJSON(response.data, [
-            {'expires': None, 'id': 3, 'name': 'Name 3', 'value': '3'},
-            {'expires': None, 'id': 2, 'name': 'Name 2', 'value': '2'},
-            {'expires': None, 'id': 1, 'name': 'Name 1', 'value': '1'}
+            {'name': 'Name 3', 'value': 3},
+            {'name': 'Name 2', 'value': 2},
+            {'name': 'Name 1', 'value': 1}
         ])
 
     def test_post_valid_event(self):
@@ -63,21 +61,31 @@ class ApiTestCase(TestCase):
             content_type='application/json'
         )
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 200, str(response))
         self.assertJSON(response.data, {
-            'id': 1,
             'name': 'test',
-            'value': '100',
-            'expires': None
+            'value': 100
         })
 
-        events = Event.query.filter_by(name='test', value=100)
-        self.assertEqual(events.count(), 1)
+        self.assertEqual(len(db.keys()), 1)
 
-        event = events.first()
-        self.assertEqual(event.expires, None)
+        json_data = json.loads(response.data)
+
+        self.assertIn('name', json_data)
+        self.assertIn('value', json_data)
+        self.assertEqual(json_data['name'], 'test')
+        self.assertEqual(json_data['value'], 100)
+
+        key = db.keys()[0]
+        event = db.get(key)
+
+        event_data = json.loads(event)
+
+        self.assertEqual(event_data['name'], 'test')
+        self.assertEqual(event_data['value'], 100)
 
     def test_post_valid_event_with_expiration(self):
+        # TODO
         pass
 
     def test_post_event_without_name(self):
@@ -92,11 +100,11 @@ class ApiTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertJSON(response.data, {
             'errors': [
-                'The field "name" is required.' 
+                'The field "name" is required.'
             ]
         })
 
-        self.assertEqual(Event.query.count(), 0)
+        self.assertEqual(len(db.keys()), 0)
 
     def test_post_event_without_value(self):
         response = self.app.post(
@@ -114,4 +122,4 @@ class ApiTestCase(TestCase):
             ]
         })
 
-        self.assertEqual(Event.query.count(), 0)
+        self.assertEqual(len(db.keys()), 0)
