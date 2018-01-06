@@ -24,6 +24,7 @@ class Event(db.Model):
     def __repr__(self):
         return '<Event %r>' % self.name
 
+
 def serialize_event(event):
     return {
         'id': event.id,

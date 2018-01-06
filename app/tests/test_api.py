@@ -92,7 +92,7 @@ class ApiTestCase(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertJSON(response.data, {
             'errors': [
-                'The field "name" is required.' 
+                'The field "name" is required.'
             ]
         })
 
