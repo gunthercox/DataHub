@@ -45,3 +45,43 @@ class ApiDeleteTestCase(AppTestCase):
 
         self.assertEqual(count, 1)
         self.assertEqual(event['name'], 'not expired')
+
+    def test_delete_non_expiring_event(self):
+        """
+        Test that an event that does not expire is not deleted.
+        """
+
+        self.app.post(
+            self.endpoint,
+            data=json.dumps({
+                'name': 'not expired',
+                'value': 100
+            }),
+            content_type='application/json'
+        )
+
+        self.app.post(
+            self.endpoint,
+            data=json.dumps({
+                'name': 'expired',
+                'value': 100,
+                'expires': -60
+            }),
+            content_type='application/json'
+        )
+
+        # Test that the events exist before the delete request
+
+        with app.app_context():
+            count = mongo.db.events.count()
+
+        self.assertEqual(count, 2)
+
+        self.app.delete(self.endpoint)
+
+        with app.app_context():
+            count = mongo.db.events.count()
+            event = mongo.db.events.find()[0]
+
+        self.assertEqual(count, 1)
+        self.assertEqual(event['name'], 'not expired')
