@@ -1,4 +1,5 @@
 import os
+import redis
 from flask import Flask
 from flask import jsonify, request
 from flask_pymongo import PyMongo, DESCENDING
@@ -13,6 +14,10 @@ app.config['MONGO_URI'] = os.getenv(
 )
 
 mongo = PyMongo(app)
+
+redis = redis.StrictRedis(
+    host=os.getenv('REDIS_HOST', 'redis')
+)
 
 
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
@@ -35,6 +40,9 @@ def index():
         if errors:
             return jsonify(errors=errors), 400
 
+        # Expire the cached JSON response
+        redis.delete('events_json')
+
         mongo.db.events.insert_one(data)
 
         return app.response_class(
@@ -44,6 +52,9 @@ def index():
         )
 
     if request.method == 'DELETE':
+
+        # Expire the cached JSON response
+        redis.delete('events_json')
 
         query_file_path = os.path.join(
             os.path.abspath(os.path.join(
@@ -69,13 +80,22 @@ def index():
             mimetype='application/json'
         )
 
-    # Get the last 100 events
-    events = mongo.db.events.find().sort(
-        '_id', DESCENDING
-    ).limit(100)
+    # Check for a cached JSON response
+    events_json = redis.get('events_json')
+
+    if not events_json:
+
+        # Get the last 100 events
+        events = mongo.db.events.find().sort(
+            '_id', DESCENDING
+        ).limit(100)
+
+        events_json = json_util.dumps(events)
+
+        redis.set('events_json', events_json)
 
     return app.response_class(
-        response=json_util.dumps(events),
+        response=events_json,
         status=200,
         mimetype='application/json'
     )

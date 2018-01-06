@@ -6,10 +6,13 @@ python:
 cache: pip
 
 env:
-  - MONGO_URI=mongodb://localhost/events
+  global:
+    - MONGO_URI=mongodb://localhost/events
+    - REDIS_HOST=localhost
 
 services:
   - mongodb
+  - redis-server
 
 install:
   - pip install -r app/requirements.txt

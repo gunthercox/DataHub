@@ -49,6 +49,10 @@ services:
     volumes:
       - ./.data/db:/data/db
 
+  redis:
+    restart: always
+    image: redis:4.0
+
   cron:
     restart: always
     build: ./cron/
