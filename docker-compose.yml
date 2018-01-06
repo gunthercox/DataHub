@@ -48,3 +48,7 @@ services:
       - MONGO_LOG_DIR=/dev/null
     volumes:
       - ./.data/db:/data/db
+
+  cron:
+    restart: always
+    build: ./cron/
