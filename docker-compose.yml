@@ -22,7 +22,7 @@ services:
       - database:database
     depends_on:
       - migration
-    command: flask run --host=0.0.0.0 --port=5001
+    command: gunicorn --bind 0.0.0.0:5001 datafeed.wsgi:app
 
   app_b:
     restart: always
@@ -33,7 +33,7 @@ services:
       - database:database
     depends_on:
       - migration
-    command: flask run --host=0.0.0.0 --port=5002
+    command: gunicorn --bind 0.0.0.0:5002 datafeed.wsgi:app
 
   app_c:
     restart: always
@@ -44,7 +44,7 @@ services:
       - database:database
     depends_on:
       - migration
-    command: flask run --host=0.0.0.0 --port=5003
+    command: gunicorn --bind 0.0.0.0:5003 datafeed.wsgi:app
 
   migration:
     build: ./app/
