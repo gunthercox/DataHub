@@ -20,8 +20,6 @@ services:
       - "5001:5001"
     links:
       - database:database
-    depends_on:
-      - migration
     command: gunicorn --bind 0.0.0.0:5001 datafeed.wsgi:app
 
   app_b:
@@ -31,8 +29,6 @@ services:
       - "5002:5002"
     links:
       - database:database
-    depends_on:
-      - migration
     command: gunicorn --bind 0.0.0.0:5002 datafeed.wsgi:app
 
   app_c:
@@ -42,23 +38,13 @@ services:
       - "5003:5003"
     links:
       - database:database
-    depends_on:
-      - migration
     command: gunicorn --bind 0.0.0.0:5003 datafeed.wsgi:app
-
-  migration:
-    build: ./app/
-    links:
-      - database
-    depends_on:
-      - database
-    command: flask db upgrade
 
   database:
     restart: always
-    image: postgres:10.1
-    volumes:
-      - .data/:/var/lib/postgresql/data
+    image: mongo:3.6
     environment:
-      POSTGRES_DB: events
-      POSTGRES_PASSWORD: secureinsidedockernetwork
+      - MONGO_DATA_DIR=/data/db
+      - MONGO_LOG_DIR=/dev/null
+    volumes:
+      - ./.data/db:/data/db

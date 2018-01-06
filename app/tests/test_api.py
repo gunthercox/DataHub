@@ -1,24 +1,17 @@
 import json
 from unittest import TestCase
-from datafeed.main import app, db, Event
+from datafeed.main import app, mongo
 
 
 class ApiTestCase(TestCase):
 
     def setUp(self):
-
-        # Use an in-memory database for testing
-        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://'
-
         self.app = app.test_client()
-
         self.endpoint = '/'
 
-        db.create_all()
-
     def tearDown(self):
-        db.session.remove()
-        db.drop_all()
+        with app.app_context():
+            mongo.db.events.drop()
 
     def assertJSON(self, json_data, dict_data):
         """
@@ -37,20 +30,29 @@ class ApiTestCase(TestCase):
 
     def test_get_list(self):
         for i in range(1, 4):
-            event = Event(
-                name='Name %s' % i,
-                value=i
+            self.app.post(
+                self.endpoint,
+                data=json.dumps({
+                    'name': 'Name %s' % i,
+                    'value': i
+                }),
+                content_type='application/json'
             )
-            db.session.add(event)
-        db.session.commit()
 
         response = self.app.get(self.endpoint)
 
         self.assertEqual(response.status_code, 200)
-        self.assertJSON(response.data, [
-            {'expires': None, 'id': 3, 'name': 'Name 3', 'value': '3'},
-            {'expires': None, 'id': 2, 'name': 'Name 2', 'value': '2'},
-            {'expires': None, 'id': 1, 'name': 'Name 1', 'value': '1'}
+
+        response_data = json.loads(response.data)
+
+        # Remove the ids because we don't case what they are
+        for item in response_data:
+            del item['_id']
+
+        self.assertEqual(response_data, [
+            {'expires': None, 'name': 'Name 3', 'value': 3},
+            {'expires': None, 'name': 'Name 2', 'value': 2},
+            {'expires': None, 'name': 'Name 1', 'value': 1}
         ])
 
     def test_post_valid_event(self):
@@ -63,19 +65,24 @@ class ApiTestCase(TestCase):
             content_type='application/json'
         )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertJSON(response.data, {
-            'id': 1,
+        self.assertEqual(response.status_code, 200, msg=response.data)
+
+        response_data = json.loads(response.data)
+        del response_data['_id']
+
+        self.assertEqual(response_data, {
             'name': 'test',
-            'value': '100',
+            'value': 100,
             'expires': None
         })
 
-        events = Event.query.filter_by(name='test', value=100)
+        with app.app_context():
+            events = mongo.db.events.find({'name': 'test', 'value': 100})
+
         self.assertEqual(events.count(), 1)
 
-        event = events.first()
-        self.assertEqual(event.expires, None)
+        event = events[0]
+        self.assertEqual(event['expires'], None)
 
     def test_post_valid_event_with_expiration(self):
         pass
@@ -96,7 +103,10 @@ class ApiTestCase(TestCase):
             ]
         })
 
-        self.assertEqual(Event.query.count(), 0)
+        with app.app_context():
+            event_count = mongo.db.events.count()
+
+        self.assertEqual(event_count, 0)
 
     def test_post_event_without_value(self):
         response = self.app.post(
@@ -114,4 +124,7 @@ class ApiTestCase(TestCase):
             ]
         })
 
-        self.assertEqual(Event.query.count(), 0)
+        with app.app_context():
+            event_count = mongo.db.events.count()
+
+        self.assertEqual(event_count, 0)
