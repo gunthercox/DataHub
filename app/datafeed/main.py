@@ -45,26 +45,27 @@ def index():
 
     if request.method == 'DELETE':
 
+        query_file_path = os.path.join(
+            os.path.abspath(os.path.join(
+                __file__, os.pardir, os.pardir)
+            ),
+            'query.js'
+        )
+
+        with open(query_file_path) as query_file:
+            query = query_file.read()
+
         # Find any expired events
         mongo.db.events.delete_many({
             'expires': {
                 '$exists': True,
                 '$ne': None
             },
-            '$where': (
-                'function() {'
-                'var now = new Date();'
-                'var expirationDate = obj._id.getTimestamp();'
-                'expirationDate.setSeconds('
-                'expirationDate.getSeconds() + obj.expires'
-                ');'
-                'return expirationDate < now;'
-                '}'
-            )
+            '$where': query
         })
 
         return app.response_class(
-            status=200,
+            status=204,
             mimetype='application/json'
         )
 
