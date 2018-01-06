@@ -15,7 +15,7 @@ app.config['MONGO_URI'] = os.getenv(
 mongo = PyMongo(app)
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST', 'DELETE'])
 def index():
 
     if request.method == 'POST':
@@ -39,6 +39,31 @@ def index():
 
         return app.response_class(
             response=json_util.dumps(data),
+            status=200,
+            mimetype='application/json'
+        )
+
+    if request.method == 'DELETE':
+
+        # Find any expired events
+        mongo.db.events.delete_many({
+            'expires': {
+                '$exists': True,
+                '$ne': None
+            },
+            '$where': (
+                'function() {'
+                'var now = new Date();'
+                'var expirationDate = obj._id.getTimestamp();'
+                'expirationDate.setSeconds('
+                'expirationDate.getSeconds() + obj.expires'
+                ');'
+                'return expirationDate < now;'
+                '}'
+            )
+        })
+
+        return app.response_class(
             status=200,
             mimetype='application/json'
         )

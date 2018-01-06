@@ -17,7 +17,8 @@ for i in range(1, 1001):
         API_URL,
         json={
             'name': 'Benchmarking test entry %s' % i,
-            'value': i
+            'value': i,
+            'expires': 60
         }
     )
 
