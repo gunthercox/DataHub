@@ -37,7 +37,9 @@ class ApiDeleteTestCase(AppTestCase):
 
         self.assertEqual(count, 2)
 
-        self.app.delete(self.endpoint)
+        response = self.app.delete(self.endpoint)
+
+        self.assertEqual(response.status_code, 204)
 
         with app.app_context():
             count = mongo.db.events.count()
@@ -77,7 +79,9 @@ class ApiDeleteTestCase(AppTestCase):
 
         self.assertEqual(count, 2)
 
-        self.app.delete(self.endpoint)
+        response = self.app.delete(self.endpoint)
+
+        self.assertEqual(response.status_code, 204)
 
         with app.app_context():
             count = mongo.db.events.count()
