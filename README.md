@@ -31,18 +31,29 @@ following JSON content.
 - expires: Optional date at which the record is no longer valid.
            The application that sends the data determines when it expires.
 
+## Performance benchmarks
+
+For 1000 requests sent using
+`app/tests/benchmark.py`
+
+```
+Post time: 3.76 seconds
+Get time:  1.78 seconds
+Total execution time: 5.54 seconds
+```
+
 ## Data Projections
 
 The following projects the number requests per second that the system
 will need to be able to handle based on a hypothetical robotics project.
 
-1. Camera
+- Camera
   - Up to 5 events per second
-2. Audio
+- Audio
   - Up to 20 events per second
-3. Temperature sensor
+- Temperature sensor
   - 1 sample per minute
-4. Encoder readings
+- Encoder readings
   - Up to 100 events per second
 
 So about 125 requests per second for incoming event data.
