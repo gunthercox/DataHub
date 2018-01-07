@@ -18,7 +18,8 @@ applications can consume and respond to events.
 
 - A scalable application layer written in [Python](https://www.python.org).
 - Load balanced behind [Nginx](https://nginx.org).
-- Data stored using [MongoDB](https://www.mongodb.com)
+- HTTP response caching with [Redis](https://redis.io).
+- Data stored using [MongoDB](https://www.mongodb.com).
 
 ## Data Format
 
