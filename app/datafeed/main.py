@@ -2,6 +2,7 @@ import os
 import redis
 from flask import Flask
 from flask import jsonify, request
+from flask_socketio import SocketIO
 from flask_pymongo import PyMongo, DESCENDING
 from bson import json_util
 
@@ -12,6 +13,8 @@ app.config['MONGO_URI'] = os.getenv(
     'MONGO_URI',
     'mongodb://database/events'
 )
+
+socketio = SocketIO(app)
 
 mongo = PyMongo(app)
 
@@ -43,6 +46,10 @@ def index():
         # Expire the cached JSON response
         redis.delete('events_json')
 
+        # Send the event the listening devices
+        emit(name, data, json=True, broadcast=True)
+
+        # Save the event in the database
         mongo.db.events.insert_one(data)
 
         return app.response_class(
