@@ -8,31 +8,17 @@ services:
     ports:
       - "5000:8080"
     links:
-      - app_a:app_a
-      - app_b:app_b
-      - app_c:app_c
+      - app:app
     command: /bin/bash -c "nginx -g 'daemon off;'"
 
-  app_a:
+  app:
     restart: always
     build: ./app/
     links:
       - database:database
     command: gunicorn --bind 0.0.0.0:5001 datafeed.wsgi:app
-
-  app_b:
-    restart: always
-    build: ./app/
-    links:
-      - database:database
-    command: gunicorn --bind 0.0.0.0:5002 datafeed.wsgi:app
-
-  app_c:
-    restart: always
-    build: ./app/
-    links:
-      - database:database
-    command: gunicorn --bind 0.0.0.0:5003 datafeed.wsgi:app
+    deploy:
+      replicas: 3
 
   database:
     restart: always
