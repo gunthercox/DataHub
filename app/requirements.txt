@@ -1,7 +1,7 @@
-flake8
+flake8<4.0
 flask>=1.0,<1.1
 flask-pymongo>=0.5,<0.6
 gunicorn>=19.9,<19.10
-nose
+nose<2.0
 redis>=2.10,<2.11
-requests
+requests<3.0
