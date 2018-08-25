@@ -20,6 +20,8 @@ applications can consume and respond to events.
 - Load balanced behind [Nginx](https://nginx.org).
 - Data stored using [Redis](https://redis.io).
 
+Redis instances use a single thread which is optimal for robotics applications running on Raspberry Pis. Although a single instance of redis has exceptional performance, redis can be scaled as needed as an application usage grows.
+
 ## Data Format
 
 Data should be sent to the API in the form of a POST request with the
@@ -37,8 +39,8 @@ For 1000 requests sent using
 `tests/benchmark.py`
 
 ```
-Post time: 3.76 seconds
-Get time:  1.78 seconds
+Post time: 3.70 seconds
+Get time:  1.80 seconds
 Total execution time: 5.54 seconds
 ```
 
