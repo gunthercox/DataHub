@@ -7,16 +7,14 @@ cache: pip
 
 env:
   global:
-    - MONGO_URI=mongodb://localhost/events
     - REDIS_HOST=localhost
 
 services:
-  - mongodb
   - redis-server
 
 install:
-  - pip install -r app/requirements.txt
+  - pip install -r requirements.txt
 
 script:
-  - flake8 app
-  - nosetests app
+  - flake8
+  - nosetests

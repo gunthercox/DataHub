@@ -13,28 +13,15 @@ services:
       - app:app
     command: /bin/bash -c "nginx -g 'daemon off;'"
 
-  app:
-    restart: always
-    build: ./app/
-    links:
-      - database:database
-    command: gunicorn --bind 0.0.0.0:5001 datafeed.wsgi:app
-    deploy:
-      replicas: 3
-
-  database:
-    restart: always
-    image: mongo:3.6
-    environment:
-      - MONGO_DATA_DIR=/data/db
-      - MONGO_LOG_DIR=/dev/null
-    volumes:
-      - .data/db:/data/db
-
   redis:
     restart: always
     image: redis:4.0
 
-  cron:
+  app:
     restart: always
-    build: ./cron/
+    build: .
+    links:
+      - redis:redis
+    command: gunicorn --bind 0.0.0.0:5001 datahub.wsgi:app
+    deploy:
+      replicas: 3

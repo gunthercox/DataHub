@@ -3,11 +3,11 @@ FROM python:3.7
 ENV PYTHONUNBUFFERED=1
 ENV FLASK_APP=datafeed/main.py
 
-ADD ./requirements.txt /code/requirements.txt
+COPY ./requirements.txt /code/requirements.txt
 
 RUN pip install -r /code/requirements.txt
 
-ADD . /code
+COPY . /code
 
 WORKDIR /code
 

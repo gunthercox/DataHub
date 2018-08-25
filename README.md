@@ -18,8 +18,7 @@ applications can consume and respond to events.
 
 - A scalable application layer written in [Python](https://www.python.org).
 - Load balanced behind [Nginx](https://nginx.org).
-- HTTP response caching with [Redis](https://redis.io).
-- Data stored using [MongoDB](https://www.mongodb.com).
+- Data stored using [Redis](https://redis.io).
 
 ## Data Format
 
@@ -35,7 +34,7 @@ following JSON content.
 ## Performance benchmarks
 
 For 1000 requests sent using
-`app/tests/benchmark.py`
+`tests/benchmark.py`
 
 ```
 Post time: 3.76 seconds
