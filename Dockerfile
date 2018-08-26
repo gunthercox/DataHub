@@ -1,7 +1,7 @@
 FROM python:3.7
 
 ENV PYTHONUNBUFFERED=1
-ENV FLASK_APP=datafeed/main.py
+ENV FLASK_APP=datahub/main.py
 
 COPY ./requirements.txt /code/requirements.txt
 
