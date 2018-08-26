@@ -1,7 +1,7 @@
-# DataFeed
+# DataHub
 
-DataFeed is an experimental high-throughput data feed designed for
-machine consumption.
+DataHub is an experimental high-throughput data feed designed for machine
+consumption.
 
 ## Use cases
 
@@ -20,7 +20,10 @@ applications can consume and respond to events.
 - Load balanced behind [Nginx](https://nginx.org).
 - Data stored using [Redis](https://redis.io).
 
-Redis instances use a single thread which is optimal for robotics applications running on Raspberry Pis. Although a single instance of redis has exceptional performance, redis can be scaled as needed as an application usage grows.
+Redis instances use a single thread which is optimal for robotics
+applications running on Raspberry Pis. Although a single instance
+of redis has exceptional performance, redis can be scaled as needed
+as an application usage grows.
 
 ## Data Format
 
