@@ -35,9 +35,9 @@ def index():
 
         return jsonify(data), 200
 
-    events = redis.keys()
-
-    print(events)
+    # Return all keys matching the specified pattern
+    pattern = request.args.get('filter', '*')
+    events = redis.keys(pattern)
 
     return jsonify([
         event.decode('ascii') for event in events
