@@ -25,6 +25,8 @@ applications running on Raspberry Pis. Although a single instance
 of redis has exceptional performance, redis can be scaled as needed
 as an application usage grows.
 
+The API design is optimized for scaling behind a load balancer in architectures where many separate systems transmit information to a central endpoint. This design means that only a single directional connection (from the sensor systems to the API) is required, which is optimal when data is being transmitted from devices that aren't publicly-accessible on a network.
+
 ## Data Format
 
 Data should be sent to the API in the form of a POST request with the
