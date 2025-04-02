@@ -11,7 +11,7 @@ on:
   pull_request:
     branches: [ "*" ]
 env:
-  REDIS_HOST=localhost
+  REDIS_HOST: localhost
 
 jobs:
 
