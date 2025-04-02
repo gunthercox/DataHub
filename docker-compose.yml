@@ -1,10 +1,8 @@
-version: '3'
-
 services:
 
   nginx:
-    restart: always
-    image: nginx:1.15
+    restart: unless-stopped
+    image: nginx:1.27
     ports:
       - "5000:8080"
     volumes:
@@ -14,11 +12,11 @@ services:
     command: /bin/bash -c "nginx -g 'daemon off;'"
 
   redis:
-    restart: always
-    image: redis:4.0
+    restart: unless-stopped
+    image: redis:7.4
 
   app:
-    restart: always
+    restart: unless-stopped
     build: .
     links:
       - redis:redis
