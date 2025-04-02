@@ -44,9 +44,9 @@ For 1000 requests sent using
 `tests/benchmark.py`
 
 ```
-Post time: 3.70 seconds
-Get time:  1.80 seconds
-Total execution time: 5.54 seconds
+Post time: 2.61 seconds
+Get time:  1.60 seconds
+Total execution time: 4.21 seconds
 ```
 
 ## Data Projections
